@@ -43,20 +43,9 @@ function startGame() {
     renderGame()
 }
 
+
 function renderGame() {
-    cardsEl.textContent = ""
-    for (i = 0; i < myCards.length; i++) {
-        cardsEl.textContent += " " + myCards[i]
-    }
-
-    cardElDealer.textContent = ""
-    for (i = 0; i < dealerCards.length; i++) {
-        cardElDealer.textContent += " " + dealerCards[i]
-    }
-
-    sumEl.textContent = "Value: " + mySum
-    sumElDealer.textContent = "Value: " + dealerSum
-
+    renderCardsAndValue()
 
     if (mySum <= 20) {
         message = "Do you want to draw a new card?"
@@ -76,6 +65,22 @@ function renderGame() {
 }
 
 
+function renderCardsAndValue() {
+    cardsEl.textContent = ""
+    for (let i = 0; i < myCards.length; i++) {
+        cardsEl.textContent += " " + myCards[i]
+    }
+
+    cardElDealer.textContent = ""
+    for (let i = 0; i < dealerCards.length; i++) {
+        cardElDealer.textContent += " " + dealerCards[i]
+    }
+
+    sumEl.textContent = "Value: " + mySum
+    sumElDealer.textContent = "Value: " + dealerSum
+}
+
+
 function getRandomCard() {
     let randomNumber = Math.floor(Math.random() * 13) + 1
     if (randomNumber > 10) {
@@ -90,10 +95,20 @@ function getRandomCard() {
 
 function newCard() {
     let myNextCard = getRandomCard()
-    let dealerNextCard = getRandomCard()
+
+    if (dealerSum < 17) {
+        let dealerNextCard = getRandomCard()
+        dealerCards.push(dealerNextCard)
+        dealerSum += dealerNextCard
+    }
+
     myCards.push(myNextCard)
     mySum += myNextCard
-    dealerCards.push(dealerNextCard)
-    dealerSum += dealerNextCard
+
     renderGame()
+}
+
+
+function stand(){
+
 }
