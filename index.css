@@ -37,3 +37,18 @@ button {
     gap: 8px;
     align-items: center;
 }
+
+button:disabled {
+    background: grey;
+    color: white;
+}
+
+#cards {
+    display: flex;
+    justify-content: center;
+    gap: 100px;
+}
+
+#hand {
+    margin-bottom: 10px;
+}
