@@ -22,7 +22,7 @@ let player = {
 }
 
 let playerEl = document.getElementById("player-el")
-playerEl.textContent = player.name + ": $" + player.chips
+playerEl.textContent = player.name + "'s bet: $" + player.chips
 
 function startGame() {
     myCards = []
@@ -37,17 +37,19 @@ function startGame() {
     startBtn.disabled = true
     standBtn.disabled = false
     playerEl.textContent = player.name + ": $" + player.chips
-    //w react useState samo aktualizuje rerenderując komponent...
-    // a tutaj musimy ręcznie zaktualizować widok...
+    // in react useState updates the view automatically return <div>{player.chips}</div>
+    // but in pure JS we need to change it manually like above
 
     let firstCard = getRandomCard()
     let secondCard = getRandomCard()
     let firstDealerCard = getRandomCard()
     mySum = firstCard + secondCard
     myCards = [firstCard, secondCard]
+    mySum = adjustAces(myCards, mySum) // at the start there can be two Aces
 
     dealerSum = firstDealerCard
     dealerCards = [firstDealerCard]
+
     renderGame()
 }
 
@@ -91,66 +93,82 @@ function renderGame() {
 }
 
 
-    function renderCardsAndValue() {
-        cardsEl.textContent = ""
-        for (let i = 0; i < myCards.length; i++) {
-            cardsEl.textContent += " " + myCards[i]
-        }
-
-        cardElDealer.textContent = ""
-        for (let i = 0; i < dealerCards.length; i++) {
-            cardElDealer.textContent += " " + dealerCards[i]
-        }
-
-        sumEl.textContent = "Value: " + mySum
-        sumElDealer.textContent = "Value: " + dealerSum
+function renderCardsAndValue() {
+    cardsEl.textContent = ""
+    for (let i = 0; i < myCards.length; i++) {
+        cardsEl.textContent += " " + myCards[i]
     }
 
-
-    function getRandomCard() {
-        let randomNumber = Math.floor(Math.random() * 13) + 1
-        if (randomNumber > 10) {
-            return 10
-        } else if (randomNumber === 1) {
-            return 11
-        } else {
-            return randomNumber
-        }
+    cardElDealer.textContent = ""
+    for (let i = 0; i < dealerCards.length; i++) {
+        cardElDealer.textContent += " " + dealerCards[i]
     }
 
+    sumEl.textContent = "Value: " + mySum
+    sumElDealer.textContent = "Value: " + dealerSum
+}
 
-    function newCard() {
-        if (!hasStand) {
-            let myNextCard = getRandomCard()
-            myCards.push(myNextCard)
-            mySum += myNextCard
-            renderGame()
-        } else { //hasStand true
-            while (dealerSum < 17) { //mySum <= 21
-                let dealerNextCard = getRandomCard()
-                dealerCards.push(dealerNextCard)
-                dealerSum += dealerNextCard
-            }
-            renderGame()
-        }
+
+function adjustAces(cards, sum) {
+    while (sum > 21 && cards.includes(11)) {
+        let aceIndex = cards.indexOf(11)
+        cards[aceIndex] = 1
+        sum -= 10
     }
+    return sum
+}
 
 
-    function stand() {
-        hasStand = true
+function getRandomCard() {
+    //[11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10];
+    //[Ace, 2, 3, 4, 5, 6, 7, 8, 9, 10, J, Q, K]
+    let randomNumber = Math.floor(Math.random() * 13) + 1
+    if (randomNumber > 10) {
+        return 10
+    } else if (randomNumber === 1) {
+        return 11
+    } else {
+        return randomNumber
+    }
+}
+
+
+function newCard() {
+    if (!hasStand) {
+        let myNextCard = getRandomCard()
+        myCards.push(myNextCard)
+        mySum += myNextCard
+        mySum = adjustAces(myCards, mySum)
+        renderGame()
+    } else { //hasStand true
+        while (dealerSum < 17) { //mySum <= 21
+            let dealerNextCard = getRandomCard()
+            dealerCards.push(dealerNextCard)
+            dealerSum += dealerNextCard
+            dealerSum = adjustAces(dealerCards, dealerSum)
+        }
         renderGame()
     }
+}
 
 
-    function endGame(message, multiplier) {
-        if (multiplier < 0) {
-            player.chips = 0
-        } else {
-            player.chips *= multiplier
-        }
-        playerEl.textContent = player.name + ": $" + player.chips
-        messageEl.textContent = message
-        newCardBtn.disabled = true
-        startBtn.disabled = false
-        standBtn.disabled = true
+function stand() {
+    hasStand = true
+    renderGame()
+}
+
+
+function endGame(message, multiplier) {
+    if (multiplier < 0) {
+        player.chips = 0
+    } else {
+        player.chips *= multiplier
     }
+    playerEl.textContent = player.name + "'s bet: $" + player.chips
+    messageEl.textContent = message
+    newCardBtn.disabled = true
+    startBtn.disabled = false
+    standBtn.disabled = true
+}
+
+//possibly TO-DO add withdraw and deposit money buttons
